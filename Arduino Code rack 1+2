@@ -1,0 +1,102 @@
+#include "thingProperties.h"
+
+unsigned long previousMillis = 0;
+const long interval = 10000; // in milliseconds, so 10000 = 10 seconds
+
+float value;
+char dataStr[100] = "";
+char buffer[7];
+
+//#define wet and dry values of sensors 
+const int dry5 = 630; // value for dry sensor
+const int wet5 = 1; // value for wet sensor
+const int dry6 = 636; // value for dry sensor
+const int wet6 = 1; // value for wet sensor
+const int dry7 = 638; // value for dry sensor
+const int wet7 = 1; // value for wet sensor
+const int dry8 = 640; // value for dry sensor
+const int wet8 = 1; // value for wet sensor
+
+void setup() {
+  // Initialize serial and wait for port to open:
+  Serial.begin(9600);
+  delay(1500);
+  
+  // Initialize properties
+  initProperties();
+
+  // Connect to Arduino IoT Cloud
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  
+  // Set debug message level for more granular information
+  setDebugMessageLevel(2);
+  ArduinoCloud.printDebugInfo();
+}
+
+void loop() {
+  ArduinoCloud.update();
+
+  unsigned long currentMillis = millis();
+
+  // Only update the cloud at the specified interval
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+
+
+  // Read value from sensor pins
+  int value5 = analogRead(A0); 
+  int value6 = analogRead(A1); 
+  int value7 = analogRead(A2);
+  int value8 = analogRead(A3);
+
+  // Convert sensor value into percentage and average readings
+  int P5  = map(value5, wet5, dry5, 100, 0); //make percentage
+  int P6  = map(value6, wet6, dry6, 100, 0);
+  int P7  = map(value7, wet7, dry7, 100, 0);
+  int P8  = map(value8, wet8, dry8, 100, 0);
+  int valueR3 = (P5 + P6) / 2;
+  int valueR4 = (P7 + P8) / 2;
+
+//Assign sensor values here to the arduino online dashboard
+  sensorValue3 = valueR3;
+  sensorValue4 = valueR4;
+  rawValue3 = (value5 + value6) / 2;
+  rawValue4 = (value7 + value8) / 2;
+  rawSensorValue1 = value5;
+  rawSensorValue2 = value6;
+  rawSensorValue3 = value7;
+  rawSensorValue4 = value8;
+
+  }
+}
+
+
+// Callback functions for sensor value changes
+void onSensorValue3Change() {
+  // Add your code here to act upon SensorValue3 change
+}
+
+void onSensorValue4Change() {
+  // Add your code here to act upon SensorValue4 change
+}
+
+
+/*
+  Since RawValue3 is READ_WRITE variable, onRawValue3Change() is
+  executed every time a new value is received from IoT Cloud.
+*/
+void onRawValue3Change()  {
+  // Add your code here to act upon RawValue3 change
+}
+/*
+  Since RawValue4 is READ_WRITE variable, onRawValue4Change() is
+  executed every time a new value is received from IoT Cloud.
+*/
+void onRawValue4Change()  {
+  // Add your code here to act upon RawValue4 change
+}
+
+void onRawSensorValue1Change(){}
+void onRawSensorValue2Change(){}
+void onRawSensorValue3Change(){}
+void onRawSensorValue4Change(){}
